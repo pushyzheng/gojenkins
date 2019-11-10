@@ -226,6 +226,25 @@ func (j *Jenkins) CreateJob(config string, options ...interface{}) (*Job, error)
 	return job, nil
 }
 
+// Update a new job from config File
+// To programmatically obtain config.xml, hit this URL.
+// You can also POST an updated config.xml to the same URL to programmatically update the configuration of a job.
+// e.g jenkins.UpdateJob("<config></config>","jobName")
+func (j *Jenkins) UpdateJob(config string, options ...interface{}) (*Job, error) {
+	qr := make(map[string]string)
+	if len(options) > 0 {
+		qr["name"] = options[0].(string)
+	} else {
+		return nil, errors.New("Error Creating Job, job name is missing")
+	}
+	jobObj := Job{Jenkins: j, Raw: new(JobResponse), Base: "/job/" + qr["name"]}
+	job, err := jobObj.Update(config, qr)
+	if err != nil {
+		return nil, err
+	}
+	return job, nil
+}
+
 // Rename a job.
 // First parameter job old name, Second parameter job new name.
 func (j *Jenkins) RenameJob(job string, name string) *Job {

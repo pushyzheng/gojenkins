@@ -319,6 +319,24 @@ func (j *Job) Create(config string, qr ...interface{}) (*Job, error) {
 	return nil, errors.New(strconv.Itoa(resp.StatusCode))
 }
 
+func (j *Job) Update(config string, qr ...interface{}) (*Job, error) {
+	var querystring map[string]string
+
+	if len(qr) > 0 {
+		querystring = qr[0].(map[string]string)
+	}
+	resp, err := j.Jenkins.Requester.PostXML(j.parentBase()+"/"+j.GetName()+"/config.xml",
+		config, j.Raw, querystring)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode == 200 {
+		j.Poll()
+		return j, nil
+	}
+	return nil, errors.New(strconv.Itoa(resp.StatusCode))
+}
+
 func (j *Job) Copy(destinationName string) (*Job, error) {
 	qr := map[string]string{"name": destinationName, "from": j.GetName(), "mode": "copy"}
 	resp, err := j.Jenkins.Requester.Post(j.parentBase()+"/createItem", nil, nil, qr)
