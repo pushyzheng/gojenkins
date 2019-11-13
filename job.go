@@ -325,7 +325,8 @@ func (j *Job) Update(config string, qr ...interface{}) (*Job, error) {
 	if len(qr) > 0 {
 		querystring = qr[0].(map[string]string)
 	}
-	resp, err := j.Jenkins.Requester.PostXML(j.Base+"/config.xml", config, j.Raw, querystring)
+	payload := bytes.NewBufferString(config)
+	resp, err := j.Jenkins.Requester.Post(j.Base+"/config.xml", payload, j.Raw, querystring)
 	if err != nil {
 		return nil, err
 	}
